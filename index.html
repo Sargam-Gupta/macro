@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Macroeconomic Dashboard: USA</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- DataTables CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+  <!-- DataTables Buttons CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
+  
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <!-- Bootstrap 5 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- DataTables JS -->
+  <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+  <!-- DataTables Buttons -->
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.clipboard.min.js"></script>
+
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      min-height: 100vh;
+    }
+    .dashboard-header {
+      background: #0a0a0a;
+      color: #ff6600;
+      padding: 15px;
+      border-bottom: 2px solid #ff6600;
+      font-weight: bold;
+      font-size: 24px;
+      letter-spacing: 2px;
+    }
+    .nav-pills .nav-link {
+      background: #1a1a1a;
+      color: #fff;
+      border: 1px solid #333;
+      margin: 2px;
+      border-radius: 0;
+      font-size: 11px;
+      padding: 8px 12px;
+    }
+    .nav-pills .nav-link.active {
+      background: #ff6600;
+      color: #000;
+      font-weight: bold;
+    }
+    .nav-pills .nav-link:hover {
+      background: #333;
+      color: #ff6600;
+    }
+    .card {
+      background: #0a0a0a;
+      border: 1px solid #333;
+      border-radius: 0;
+    }
+    .card-header {
+      background: #1a1a1a;
+      color: #ff6600;
+      border-bottom: 1px solid #333;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    .table-dark {
+      --bs-table-bg: #0a0a0a;
+      --bs-table-striped-bg: #1a1a1a;
+      --bs-table-border-color: #333;
+      color: #fff;
+    }
+    .table-dark th {
+      background: #1a1a1a;
+      color: #ff6600;
+      border: 1px solid #333;
+    }
+    .dt-buttons .btn {
+      background: #ff6600;
+      color: #000;
+      border: none;
+      margin-right: 5px;
+      font-size: 11px;
+      padding: 4px 8px;
+    }
+    .dt-buttons .btn:hover {
+      background: #ffaa66;
+    }
+    .sidebar {
+      background: #0a0a0a;
+      border-right: 1px solid #333;
+      min-height: 100vh;
+    }
+    @media (max-width: 768px) {
+      .sidebar {
+        min-height: auto;
+        border-right: none;
+        border-bottom: 1px solid #333;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-header text-center">
+    MACROECONOMIC DASHBOARD: UNITED STATES
+  </div>
+  
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-md-2 sidebar p-3">
+        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist">
+          <button class="nav-link active" id="v-pills-executive-tab" data-bs-toggle="pill" data-bs-target="#v-pills-executive" type="button" role="tab">Executive Summary</button>
+          <button class="nav-link" id="v-pills-gdp-tab" data-bs-toggle="pill" data-bs-target="#v-pills-gdp" type="button" role="tab">GDP & Economic Output</button>
+          <button class="nav-link" id="v-pills-inflation-tab" data-bs-toggle="pill" data-bs-target="#v-pills-inflation" type="button" role="tab">Inflation & Price Trends</button>
+          <button class="nav-link" id="v-pills-monetary-tab" data-bs-toggle="pill" data-bs-target="#v-pills-monetary" type="button" role="tab">Monetary Policy Analysis</button>
+          <button class="nav-link" id="v-pills-labor-tab" data-bs-toggle="pill" data-bs-target="#v-pills-labor" type="button" role="tab">Labor Market Dynamics</button>
+          <button class="nav-link" id="v-pills-fiscal-tab" data-bs-toggle="pill" data-bs-target="#v-pills-fiscal" type="button" role="tab">Fiscal Position & Debt</button>
+          <button class="nav-link" id="v-pills-external-tab" data-bs-toggle="pill" data-bs-target="#v-pills-external" type="button" role="tab">External Sector Analysis</button>
+          <button class="nav-link" id="v-pills-financial-tab" data-bs-toggle="pill" data-bs-target="#v-pills-financial" type="button" role="tab">Financial Conditions</button>
+          <button class="nav-link" id="v-pills-pros-tab" data-bs-toggle="pill" data-bs-target="#v-pills-pros" type="button" role="tab">Pros & Cons</button>
+          <button class="nav-link" id="v-pills-outlook-tab" data-bs-toggle="pill" data-bs-target="#v-pills-outlook" type="button" role="tab">Outlook & Resilience</button>
+          <button class="nav-link" id="v-pills-disclaimer-tab" data-bs-toggle="pill" data-bs-target="#v-pills-disclaimer" type="button" role="tab">Disclaimer</button>
+          <button class="nav-link" id="v-pills-sources-tab" data-bs-toggle="pill" data-bs-target="#v-pills-sources" type="button" role="tab">Data Sources</button>
+          <button class="nav-link" id="v-pills-formatting-tab" data-bs-toggle="pill" data-bs-target="#v-pills-formatting" type="button" role="tab">Formatting Guidelines</button>
+        </div>
+      </div>
+      
+      <!-- Main Content -->
+      <div class="col-md-10 p-3">
+        <div class="tab-content" id="v-pills-tabContent">
+          
+          <!-- Executive Summary -->
+          <div class="tab-pane fade show active" id="v-pills-executive" role="tabpanel">
+            <div class="card">
+              <div class="card-header">EXECUTIVE SUMMARY</div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table id="table-executive" class="table table-dark table-striped" style="width:100%">
+                    <thead>
+                      <tr>
+                        <th>Indicator</th>
+                        <th>Current Value</th>
+                        <th>Previous Period</th>
+                        <th>YoY Change (%)</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>Real GDP Growth</td><td>2.8%</td><td>2.9%</td><td>-0.1</td><td>STABLE</td></tr>
+                      <tr><td>Unemployment Rate</td><td>4.2%</td><td>4.1%</td><td>0.1</td><td>RISING</td></tr>
+                      <tr><td>Inflation Rate</td><td>2.7%</td><td>2.4%</td><td>0.3</td><td>RISING</td></tr>
+                      <tr><td>Fed Funds Rate</td><td>4.5%</td><td>4.5%</td><td>0.0</td><td>UNCHANGED</td></tr>
+                      <tr><td>Federal Deficit</td><td>$1.8T</td><td>$1.7T</td><td>5.9</td><td>WORSENING</td></tr>
+                      <tr><td>Trade Deficit</td><td>$1.2T</td><td>$1.0T</td><td>20.0</td><td>WORSENING</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- GDP & Economic Output -->
+          <div class="tab-pane fade" id="v-pills-gdp" role="tabpanel">
+            <div class="card">
+              <div class="card-header">GDP & ECONOMIC OUTPUT</div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table id="table-gdp" class="table table-dark table-striped" style="width:100%">
+                    <thead>
+                      <tr>
+                        <th>Year</th>
+                        <th>Nominal GDP ($B)</th>
+                        <th>Real GDP Growth (%)</th>
+                        <th>Consumption (%)</th>
+                        <th>Investment (%)</th>
+                        <th>Gov Spending (%)</th>
+                        <th>Net Exports (%)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>2024</td><td>29,185</td><td>2.8</td><td>68.0</td><td>18.5</td><td>17.5</td><td>-4.0</td></tr>
+                      <tr><td>2023</td><td>27,721</td><td>2.9</td><td>68.2</td><td>18.7</td><td>17.5</td><td>-4.4</td></tr>
+                      <tr><td>2022</td><td>26,007</td><td>2.5</td><td>68.0</td><td>19.0</td><td>17.3</td><td>-4.3</td></tr>
+                      <tr><td>2021</td><td>23,681</td><td>6.1</td><td>67.5</td><td>17.5</td><td>17.8</td><td>-2.8</td></tr>
+                      <tr><td>2020</td><td>21,354</td><td>-2.2</td><td>68.4</td><td>17.2</td><td>18.1</td><td>-3.7</td></tr>
+                      <tr><td>2019</td><td>21,540</td><td>2.6</td><td>68.0</td><td>18.5</td><td>17.6</td><td>-4.1</td></tr>
+                      <tr><td>2018</td><td>20,657</td><td>2.9</td><td>67.8</td><td>18.9</td><td>17.8</td><td>-3.5</td></tr>
+                      <tr><td>2017</td><td>19,612</td><td>2.5</td><td>67.6</td><td>19.1</td><td>18.0</td><td>-3.6</td></tr>
+                      <tr><td>2016</td><td>18,805</td><td>1.8</td><td>67.9</td><td>18.4</td><td>17.5</td><td>-3.9</td></tr>
+                      <tr><td>2015</td><td>18,295</td><td>3.0</td><td>68.1</td><td>18.3</td><td>17.7</td><td>-4.0</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Inflation & Price Trends -->
+          <div class="tab-pane fade" id="v-pills-inflation" role="tabpanel">
+            <div class="card">
+              <div class="card-header">INFLATION & PRICE TRENDS</div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table id="table-inflation" class="table table-dark table-striped" style="width:100%">
+                    <thead>
+                      <tr>
+                        <th>Quarter</th>
+                        <th>Headline CPI (%)</th>
+                        <th>Core CPI (%)</th>
+                        <th>Fed Target (%)</th>
+                        <th>Wage Growth (%)</th>
+                        <th>Energy Inflation (%)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>Q2 2025</td><td>2.7</td><td>2.9</td><td>2.0</td><td>3.9</td><td>4.2</td></tr>
+                      <tr><td>Q1 2025</td><td>3.1</td><td>3.2</td><td>2.0</td><td>4.1</td><td>5.8</td></tr>
+                      <tr><td>Q4 2024</td><td>2.9</td><td>3.2</td><td>2.0</td><td>4.0</td><td>3.1</td></tr>
+                      <tr><td>Q3 2024</td><td>3.3</td><td>3.5</td><td>2.0</td><td>3.8</td><td>6.2</td></tr>
+                      <tr><td>Q2 2024</td><td>3.0</td><td>3.3</td><td>2.0</td><td>3.6</td><td>2.9</td></tr>
+                      <tr><td>Q1 2024</td><td>3.5</td><td>3.8</td><td>2.0</td><td>3.4</td><td>7.1</td></tr>
+                      <tr><td>Q4 2023</td><td>4.1</td><td>4.5</td><td>2.0</td><td>3.2</td><td>8.3</td></tr>
+                      <tr><td>Q3 2023</td><td>5.2</td><td>5.8</td><td>2.0</td><td>2.8</td><td>12.4</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Monetary Policy Analysis -->
+          <div class="tab-pane fade" id="v-pills-monetary" role="tabpanel">
+            <div class="card">
+              <div class="card-header">MONETARY POLICY ANALYSIS</div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table id="table-monetary" class="table table-dark table-striped" style="width:100%">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Fed Funds Rate (%)</th>
+                        <th>2-Year Treasury (%)</th>
+                        <th>10-Year Treasury (%)</th>
+                        <th>30-Year Treasury (%)</th>
+                        <th>Policy Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>Jul 2025</td><td>4.50</td><td>3.72</td><td>4.22</td><td>4.85</td><td>HOLD</td></tr>
+                      <tr><td>Jun 2025</td><td>4.50</td><td>3.75</td><td>4.25</td><td>4.88</td><td>HOLD</td></tr>
+                      <tr><td>May 2025</td><td>4.50</td><td>3.78</td><td>4.28</td><td>4.91</td><td>HOLD</td></tr>
+                      <tr><td>Mar 2025</td><td>4.50</td><td>3.82</td><td>4.32</td><td>4.95</td><td>HOLD</td></tr>
+                      <tr><td>Dec 2024</td><td>4.50</td><td>3.85</td><td>4.35</td><td>4.98</td><td>CUT 25bp</td></tr>
+                      <tr><td>Nov 2024</td><td>4.75</td><td>4.10</td><td>4.58</td><td>5.15</td><td>CUT 25bp</td></tr>
+                      <tr><td>Sep 2024</td><td>5.00</td><td>4.35</td><td>4.82</td><td>5.38</td><td>CUT 50bp</td></tr>
+                      <tr><td>Jul 2024</td><td>5.50</td><td>4.62</td><td>5.05</td><td>5.62</td><td>HOLD</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Labor Market Dynamics -->
+          <div class="tab-pane fade" id="v-pills-labor" role="tabpanel">
+            <div class="card">
+              <div class="card-header">LABOR MARKET DYNAMICS</div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table id="table-labor" class="table table-dark table-striped" style="width:100%">
+                    <thead>
+                      <tr>
+                        <th>Month</th>
+                        <th>Unemployment Rate (%)</th>
+                        <th>Participation Rate (%)</th>
+                        <th>Employment Ratio (%)</th>
+                        <th>Payroll Change (000s)</th>
+                        <th>Wage Growth (%)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>Jul 2025</td><td>4.2</td><td>62.2</td><td>59.6</td><td>73</td><td>3.9</td></tr>
+                      <tr><td>Jun 2025</td><td>4.1</td><td>62.3</td><td>59.7</td><td>147</td><td>4.0</td></tr>
+                      <tr><td>May 2025</td><td>4.2</td><td>62.4</td><td>59.8</td><td>177</td><td>4.1</td></tr>
+                      <tr><td>Apr 2025</td><td>4.1</td><td>62.5</td><td>59.9</td><td>228</td><td>4.2</td></tr>
+                      <tr><td>Mar 2025</td><td>4.0</td><td>62.6</td><td>60.0</td><td>215</td><td>4.3</td></tr>
+                      <tr><td>Feb 2025</td><td>4.1</td><td>62.7</td><td>60.1</td><td>295</td><td>4.4</td></tr>
+                      <tr><td>Jan 2025</td><td>4.0</td><td>62.8</td><td>60.2</td><td>233</td><td>4.5</td></tr>
+                      <tr><td>Dec 2024</td><td>3.9</td><td>62.9</td><td>60.4</td><td>216</td><td>4.6</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Fiscal Position & Debt -->
+          <div class="tab-pane fade" id="v-pills-fiscal" role="tabpanel">
+            <div class="card">
+              <div class="card-header">FISCAL POSITION & DEBT</div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table id="table-fiscal" class="table table-dark table-striped" style="width:100%">
+                    <thead>
+                      <tr>
+                        <th>Year</th>
+                        <th>Revenue ($T)</th>
+                        <th>Expenditure ($T)</th>
+                        <th>Deficit ($T)</th>
+                        <th>Debt-to-GDP (%)</th>
+                        <th>Interest Payments ($B)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>2024</td><td>4.9</td><td>6.8</td><td>-1.8</td><td>121</td><td>882</td></tr>
+                      <tr><td>2023</td><td>4.4</td><td>6.1</td><td>-1.7</td><td>119</td><td>658</td></tr>
+                      <tr><td>2022</td><td>4.0</td><td>6.3</td><td>-2.3</td><td>119</td><td>475</td></tr>
+                      <tr><td>2021</td><td>4.0</td><td>7.2</td><td>-3.2</td><td>125</td><td>352</td></tr>
+                      <tr><td>2020</td><td>3.4</td><td>6.6</td><td>-3.1</td><td>127</td><td>345</td></tr>
+                      <tr><td>2019</td><td>3.5</td><td>4.4</td><td>-0.9</td><td>108</td><td>375</td></tr>
+                      <tr><td>2018</td><td>3.3</td><td>4.1</td><td>-0.8</td><td>106</td><td>325</td></tr>
+                      <tr><td>2017</td><td>3.3</td><td>4.0</td><td>-0.7</td><td>105</td><td>263</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- External Sector Analysis -->
+          <div class="tab-pane fade" id="v-pills-external" role="tabpanel">
+            <div class="card">
+              <div class="card-header">EXTERNAL SECTOR ANALYSIS</div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table id="table-external" class="table table-dark table-striped" style="width:100%">
+                    <thead>
+                      <tr>
+                        <th>Year</th>
+                        <th>Exports ($B)</th>
+                        <th>Imports ($B)</th>
+                        <th>Trade Balance ($B)</th>
+                        <th>Current Account ($B)</th>
+                        <th>FX Reserves ($B)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>2024</td><td>2,084</td><td>3,300</td><td>-1,216</td><td>-918</td><td>39.5</td></tr>
+                      <tr><td>2023</td><td>2,046</td><td>3,056</td><td>-1,010</td><td>-785</td><td>38.2</td></tr>
+                      <tr><td>2022</td><td>2,044</td><td>3,267</td><td>-1,223</td><td>-945</td><td>36.8</td></tr>
+                      <tr><td>2021</td><td>1,754</td><td>2,613</td><td>-859</td><td>-859</td><td>35.1</td></tr>
+                      <tr><td>2020</td><td>1,431</td><td>2,407</td><td>-976</td><td>-647</td><td>33.4</td></tr>
+                      <tr><td>2019</td><td>1,645</td><td>2,407</td><td>-762</td><td>-480</td><td>32.8</td></tr>
+                      <tr><td>2018</td><td>1,664</td><td>2,542</td><td>-878</td><td>-491</td><td>31.5</td></tr>
+                      <tr><td>2017</td><td>1,546</td><td>2,361</td><td>-815</td><td>-449</td><td>30.2</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Financial Conditions -->
+          <div class="tab-pane fade" id="v-pills-financial" role="tabpanel">
+            <div class="card">
+              <div class="card-header">FINANCIAL CONDITIONS</div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table id="table-financial" class="table table-dark table-striped" style="width:100%">
+                    <thead>
+                      <tr>
+                        <th>Indicator</th>
+                        <th>Current Value</th>
+                        <th>Previous Quarter</th>
+                        <th>Year Ago</th>
+                        <th>Assessment</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>NPL Ratio (%)</td><td>1.7</td><td>1.5</td><td>1.2</td><td>DETERIORATING</td></tr>
+                      <tr><td>S&P 500 YTD (%)</td><td>7.1</td><td>5.2</td><td>12.8</td><td>POSITIVE</td></tr>
+                      <tr><td>Housing Price Growth (%)</td><td>3.0</td><td>3.5</td><td>6.2</td><td>COOLING</td></tr>
+                      <tr><td>Credit-to-GDP Gap (%)</td><td>5.2</td><td>4.8</td><td>3.9</td><td>ELEVATED</td></tr>
+                      <tr><td>Corporate Bond Spread (bp)</td><td>145</td><td>132</td><td>108</td><td>WIDENING</td></tr>
+                      <tr><td>Bank Capital Ratio (%)</td><td>15.2</td><td>15.1</td><td>14.8</td><td>STABLE</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Pros & Cons -->
+          <div class="tab-pane fade" id="v-pills-pros" role="tabpanel">
+            <div class="card">
+              <div class="card-header">PROS & CONS</div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-6">
+                    <h5 style="color: #00ff00;">STRENGTHS</h5>
+                    <ul>
+                      <li>GDP growth remains resilient at 2.8% annually</li>
+                      <li>Labor market maintains low unemployment around 4.2%</li>
+                      <li>Core inflation declining toward Fed target</li>
+                      <li>Financial system healthy with NPL ratio at 1.7%</li>
+                      <li>Strong consumer spending supporting economic activity</li>
+                    </ul>
+                  </div>
+                  <div class="col-md-6">
+                    <h5 style="color: #ff6666;">CONCERNS</h5>
+                    <ul>
+                      <li>Federal deficit at $1.8 trillion, 6.4% of GDP</li>
+                      <li>Public debt-to-GDP ratio elevated at 121%</li>
+                      <li>Trade deficit widening to $1.2 trillion</li>
+                      <li>Labor force participation declining to 62.2%</li>
+                      <li>Housing affordability challenges persist</li>
+                      <li>Geopolitical tensions affecting trade policy</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Outlook & Resilience -->
+          <div class="tab-pane fade" id="v-pills-outlook" role="tabpanel">
+            <div class="card">
+              <div class="card-header">OUTLOOK & RESILIENCE SCORE</div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-8">
+                    <h5>Economic Outlook</h5>
+                    <p>The US economy demonstrates moderate resilience with stable growth and improving inflation dynamics, though fiscal and external imbalances pose medium-term challenges. Labor market cooling and persistent core inflation above target require careful monetary policy calibration.</p>
+                    
+                    <h5>Key Risks</h5>
+                    <ul>
+                      <li>Fiscal sustainability concerns with rising debt levels</li>
+                      <li>External financing requirements from trade deficits</li>
+                      <li>Potential monetary policy missteps</li>
+                      <li>Geopolitical tensions and trade disruptions</li>
+                    </ul>
+                  </div>
+                  <div class="col-md-4 text-center">
+                    <h3>MACRO RESILIENCE RATING</h3>
+                    <div style="font-size: 48px; color: #ff6600; font-weight: bold;">3.5/5.0</div>
+                    <p style="color: #ffaa66;">MODERATE RESILIENCE</p>
+                    <small>Based on fiscal health, external balance, monetary policy effectiveness, and structural factors</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Disclaimer -->
+          <div class="tab-pane fade" id="v-pills-disclaimer" role="tabpanel">
+            <div class="card">
+              <div class="card-header">DISCLAIMER</div>
+              <div class="card-body">
+                <h5>Data Sources and Methodology</h5>
+                <p>This macroeconomic dashboard analysis is based on publicly available data from authoritative sources including the Bureau of Labor Statistics, Bureau of Economic Analysis, Federal Reserve Board, Congressional Budget Office, and other official U.S. government agencies.</p>
+                
+                <h5>Investment and Policy Disclaimers</h5>
+                <p>This content is provided for informational and analytical purposes only and does not constitute investment advice, financial planning recommendations, or policy guidance. Economic analysis presented reflects current conditions and historical trends but cannot predict future economic performance.</p>
+                
+                <h5>Data Limitations</h5>
+                <p>Government economic statistics are subject to regular revisions as additional information becomes available. Users should consult original sources for the most current data. The resilience rating represents analytical judgments based on available data and should not be interpreted as predictions.</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Data Sources -->
+          <div class="tab-pane fade" id="v-pills-sources" role="tabpanel">
+            <div class="card">
+              <div class="card-header">DATA SOURCES</div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table id="table-sources" class="table table-dark table-striped" style="width:100%">
+                    <thead>
+                      <tr>
+                        <th>Data Category</th>
+                        <th>Primary Source</th>
+                        <th>Secondary Sources</th>
+                        <th>Update Frequency</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>GDP & National Accounts</td><td>Bureau of Economic Analysis</td><td>FRED, OECD</td><td>Quarterly</td></tr>
+                      <tr><td>Employment Data</td><td>Bureau of Labor Statistics</td><td>FRED, State Agencies</td><td>Monthly</td></tr>
+                      <tr><td>Inflation Metrics</td><td>Bureau of Labor Statistics</td><td>FRED, Regional Fed Banks</td><td>Monthly</td></tr>
+                      <tr><td>Monetary Policy</td><td>Federal Reserve Board</td><td>FRED, Treasury</td><td>As Released</td></tr>
+                      <tr><td>Fiscal Data</td><td>Congressional Budget Office</td><td>Treasury, OMB</td><td>Monthly/Annual</td></tr>
+                      <tr><td>Trade & External</td><td>Bureau of Economic Analysis</td><td>Commerce Dept, FRED</td><td>Monthly/Quarterly</td></tr>
+                      <tr><td>Financial Conditions</td><td>Federal Reserve</td><td>FDIC, Private Sector</td><td>Quarterly</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Formatting Guidelines -->
+          <div class="tab-pane fade" id="v-pills-formatting" role="tabpanel">
+            <div class="card">
+              <div class="card-header">FORMATTING & STYLE GUIDELINES</div>
+              <div class="card-body">
+                <h5>Number Formatting</h5>
+                <ul>
+                  <li>Large numbers in billions/trillions with "$" notation (e.g., "$1.8T", "$900B")</li>
+                  <li>Percentages with one decimal place (e.g., "2.7%", "4.2%")</li>
+                  <li>Years/quarters in columns, metrics in rows in data tables</li>
+                  <li>Commas as thousands separators (e.g., "1,200", "25,000")</li>
+                </ul>
+                
+                <h5>Color Coding</h5>
+                <ul>
+                  <li>Bloomberg orange (#ff6600) for headers and key metrics</li>
+                  <li>Green for positive indicators and improvements</li>
+                  <li>Red for negative indicators and deterioration</li>
+                  <li>White text on dark background for readability</li>
+                </ul>
+                
+                <h5>Data Presentation</h5>
+                <ul>
+                  <li>Annual and quarterly tables kept separate</li>
+                  <li>Bold section headers and key statistics</li>
+                  <li>Bloomberg terminal color palette throughout</li>
+                  <li>Consistent table formatting with sorting and export capabilities</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function() {
+      // Initialize DataTables for all tables
+      $('#table-executive').DataTable({
+        dom: 'Bfrtip',
+        buttons: ['copy', 'csv', 'excel'],
+        pageLength: 10,
+        responsive: true,
+        order: [[0, 'asc']]
+      });
+
+      $('#table-gdp').DataTable({
+        dom: 'Bfrtip',
+        buttons: ['copy', 'csv', 'excel'],
+        pageLength: 10,
+        responsive: true,
+        order: [[0, 'desc']]
+      });
+
+      $('#table-inflation').DataTable({
+        dom: 'Bfrtip',
+        buttons: ['copy', 'csv', 'excel'],
+        pageLength: 10,
+        responsive: true,
+        order: [[0, 'desc']]
+      });
+
+      $('#table-monetary').DataTable({
+        dom: 'Bfrtip',
+        buttons: ['copy', 'csv', 'excel'],
+        pageLength: 10,
+        responsive: true,
+        order: [[0, 'desc']]
+      });
+
+      $('#table-labor').DataTable({
+        dom: 'Bfrtip',
+        buttons: ['copy', 'csv', 'excel'],
+        pageLength: 10,
+        responsive: true,
+        order: [[0, 'desc']]
+      });
+
+      $('#table-fiscal').DataTable({
+        dom: 'Bfrtip',
+        buttons: ['copy', 'csv', 'excel'],
+        pageLength: 10,
+        responsive: true,
+        order: [[0, 'desc']]
+      });
+
+      $('#table-external').DataTable({
+        dom: 'Bfrtip',
+        buttons: ['copy', 'csv', 'excel'],
+        pageLength: 10,
+        responsive: true,
+        order: [[0, 'desc']]
+      });
+
+      $('#table-financial').DataTable({
+        dom: 'Bfrtip',
+        buttons: ['copy', 'csv', 'excel'],
+        pageLength: 10,
+        responsive: true,
+        order: [[0, 'asc']]
+      });
+
+      $('#table-sources').DataTable({
+        dom: 'Bfrtip',
+        buttons: ['copy', 'csv', 'excel'],
+        pageLength: 10,
+        responsive: true,
+        order: [[0, 'asc']]
+      });
+    });
+  </script>
+</body>
+</html>
